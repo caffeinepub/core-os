@@ -29,28 +29,22 @@ export const BiomarkerRow: React.FC<Props> = ({ marker }) => {
       : `< ${marker.optimalMax} ${marker.unit}`;
 
   return (
-    <div style={{ padding: "10px 0", borderBottom: "1px solid #1e2a38" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 6,
-        }}
-      >
-        <div>
-          <span style={{ fontSize: 13, fontWeight: 500, color: "#E8EEF6" }}>
+    <div className="py-2.5" style={{ borderBottom: "1px solid #1e2a38" }}>
+      {/* Top row: name/category + value/badge — wraps on narrow */}
+      <div className="flex flex-wrap justify-between items-start gap-2 mb-1.5">
+        <div className="flex flex-col min-w-0">
+          <span className="text-sm font-medium" style={{ color: "#E8EEF6" }}>
             {marker.name}
           </span>
-          <span style={{ fontSize: 11, color: "#6F7F92", marginLeft: 8 }}>
+          <span style={{ fontSize: 11, color: "#6F7F92" }}>
             {marker.category}
           </span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div className="flex items-center gap-2 flex-shrink-0">
           <span
             style={{
               fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: 600,
               color,
             }}
@@ -60,29 +54,27 @@ export const BiomarkerRow: React.FC<Props> = ({ marker }) => {
           </span>
           <span
             style={{
-              fontSize: 10,
-              fontWeight: 600,
+              fontSize: 9,
+              fontWeight: 700,
               letterSpacing: "0.08em",
               color,
               background: `${color}18`,
-              padding: "2px 6px",
+              padding: "2px 5px",
               borderRadius: 4,
               border: `1px solid ${color}30`,
+              whiteSpace: "nowrap",
             }}
           >
             {statusLabel[marker.status]}
           </span>
         </div>
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+
+      {/* Bottom row: bar + optimal label stacked */}
+      <div className="flex flex-col gap-1">
         <div
-          style={{
-            flex: 1,
-            height: 4,
-            background: "#243041",
-            borderRadius: 2,
-            overflow: "hidden",
-          }}
+          className="h-1 rounded overflow-hidden"
+          style={{ background: "#243041" }}
         >
           <div
             style={{
@@ -95,7 +87,7 @@ export const BiomarkerRow: React.FC<Props> = ({ marker }) => {
             }}
           />
         </div>
-        <span style={{ fontSize: 11, color: "#6F7F92", whiteSpace: "nowrap" }}>
+        <span className="truncate" style={{ fontSize: 10, color: "#6F7F92" }}>
           Optimal: {optimalLabel}
         </span>
       </div>

@@ -6,22 +6,33 @@ import { Biometrics } from "./pages/Biometrics";
 import { Dashboard } from "./pages/Dashboard";
 import { Labs } from "./pages/Labs";
 import { Protocols } from "./pages/Protocols";
-
-const pages: Record<string, React.FC> = {
-  dashboard: Dashboard,
-  biometrics: Biometrics,
-  labs: Labs,
-  advisor: AIAdvisor,
-  protocols: Protocols,
-};
+import { SleepAnalysis } from "./pages/SleepAnalysis";
 
 export default function App() {
   const [activePage, setActivePage] = useState("dashboard");
-  const PageComponent = pages[activePage] || Dashboard;
+
+  const renderPage = () => {
+    switch (activePage) {
+      case "dashboard":
+        return <Dashboard />;
+      case "biometrics":
+        return <Biometrics onNavigate={setActivePage} />;
+      case "sleep":
+        return <SleepAnalysis />;
+      case "labs":
+        return <Labs />;
+      case "advisor":
+        return <AIAdvisor />;
+      case "protocols":
+        return <Protocols />;
+      default:
+        return <Dashboard />;
+    }
+  };
 
   return (
     <Layout activePage={activePage} onNavigate={setActivePage}>
-      <PageComponent />
+      {renderPage()}
     </Layout>
   );
 }

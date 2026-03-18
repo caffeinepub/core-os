@@ -24,6 +24,15 @@ const navItems = [
   { id: "protocols", label: "Protocols", icon: Shield },
 ];
 
+const headerTabs = [
+  { label: "Dashboard", page: "dashboard" },
+  { label: "Biometrics", page: "biometrics" },
+  { label: "Sleep", page: "sleep" },
+  { label: "Labs", page: "labs" },
+  { label: "AI Advisor", page: "advisor" },
+  { label: "Protocols", page: "protocols" },
+];
+
 interface Props {
   activePage: string;
   onNavigate: (page: string) => void;
@@ -35,49 +44,40 @@ export const Layout: React.FC<Props> = ({
   onNavigate,
   children,
 }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100vh",
-        background: "var(--bg-primary)",
-        overflow: "hidden",
-      }}
+      className="flex flex-col h-screen overflow-hidden"
+      style={{ background: "var(--bg-primary)" }}
     >
       {/* Header */}
       <header
+        className="flex items-center px-4 gap-3 flex-shrink-0 z-50"
         style={{
           height: 60,
           background: "#0d1218",
           borderBottom: "1px solid #243041",
-          display: "flex",
-          alignItems: "center",
-          padding: "0 20px",
-          gap: 16,
-          flexShrink: 0,
-          zIndex: 100,
         }}
       >
+        {/* Sidebar toggle */}
         <button
           type="button"
           onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="flex items-center justify-center p-1 md:hidden"
           style={{
             background: "none",
             border: "none",
             cursor: "pointer",
             color: "#9AA8B8",
-            padding: 4,
-            display: "flex",
           }}
+          aria-label="Toggle sidebar"
         >
           {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
 
         {/* Logo */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div className="flex items-center gap-2 flex-shrink-0">
           <Heart size={20} style={{ color: "#27E0C3" }} />
           <span
             style={{
@@ -91,56 +91,47 @@ export const Layout: React.FC<Props> = ({
           </span>
         </div>
 
-        {/* Nav tabs */}
-        <nav style={{ display: "flex", gap: 2, marginLeft: 24 }}>
-          {["Dashboard", "Biometrics", "Labs", "AI Advisor", "Protocols"].map(
-            (tab) => {
-              const pageMap: Record<string, string> = {
-                Dashboard: "dashboard",
-                Biometrics: "biometrics",
-                Labs: "labs",
-                "AI Advisor": "advisor",
-                Protocols: "protocols",
-              };
-              const page = pageMap[tab];
-              const isActive = activePage === page;
-              return (
-                <button
-                  type="button"
-                  key={tab}
-                  onClick={() => onNavigate(page)}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    padding: "6px 12px",
-                    borderRadius: 6,
-                    fontSize: 13,
-                    fontWeight: isActive ? 600 : 400,
-                    color: isActive ? "#27E0C3" : "#9AA8B8",
-                    borderBottom: isActive
-                      ? "2px solid #27E0C3"
-                      : "2px solid transparent",
-                    transition: "all 0.15s",
-                  }}
-                >
-                  {tab}
-                </button>
-              );
-            },
-          )}
+        {/* Nav tabs — scrollable on mobile */}
+        <nav
+          className="flex gap-0.5 overflow-x-auto ml-4 md:ml-6 flex-1"
+          style={{ scrollbarWidth: "none" }}
+        >
+          {headerTabs.map((tab) => {
+            const isActive = activePage === tab.page;
+            return (
+              <button
+                type="button"
+                key={tab.page}
+                data-ocid={`nav.${tab.page}.link`}
+                onClick={() => onNavigate(tab.page)}
+                className="flex-shrink-0"
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: "6px 10px",
+                  borderRadius: 6,
+                  fontSize: 13,
+                  fontWeight: isActive ? 600 : 400,
+                  color: isActive ? "#27E0C3" : "#9AA8B8",
+                  borderBottom: isActive
+                    ? "2px solid #27E0C3"
+                    : "2px solid transparent",
+                  transition: "all 0.15s",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
         </nav>
 
-        <div
-          style={{
-            marginLeft: "auto",
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-          }}
-        >
+        {/* Right actions — hidden on small mobile */}
+        <div className="hidden sm:flex items-center gap-3 flex-shrink-0">
           <Zap size={14} style={{ color: "#27E0C3" }} />
           <span
+            className="hidden md:inline"
             style={{
               fontSize: 11,
               color: "#27E0C3",
@@ -173,15 +164,8 @@ export const Layout: React.FC<Props> = ({
             <Settings size={16} />
           </button>
           <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "4px 10px",
-              background: "#1A2330",
-              borderRadius: 6,
-              border: "1px solid #243041",
-            }}
+            className="flex items-center gap-2 px-2.5 py-1 rounded"
+            style={{ background: "#1A2330", border: "1px solid #243041" }}
           >
             <div
               style={{
@@ -197,114 +181,103 @@ export const Layout: React.FC<Props> = ({
         </div>
       </header>
 
-      <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+      <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        {sidebarOpen && (
-          <aside
+        <aside
+          className={`flex-shrink-0 flex flex-col gap-1 ${sidebarOpen ? "block" : "hidden"} md:flex`}
+          style={{
+            width: 220,
+            background: "#0d1218",
+            borderRight: "1px solid #243041",
+            padding: "20px 12px",
+          }}
+        >
+          <div
             style={{
-              width: 220,
-              background: "#0d1218",
-              borderRight: "1px solid #243041",
-              padding: "20px 12px",
-              display: "flex",
-              flexDirection: "column",
-              gap: 4,
-              flexShrink: 0,
+              fontSize: 10,
+              fontWeight: 600,
+              color: "#6F7F92",
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              padding: "4px 12px 8px",
+              marginBottom: 4,
+            }}
+          >
+            MODULES
+          </div>
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activePage === item.id;
+            return (
+              <button
+                type="button"
+                key={item.id}
+                data-ocid={`sidebar.${item.id}.link`}
+                onClick={() => {
+                  onNavigate(item.id);
+                  setSidebarOpen(false);
+                }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "9px 12px",
+                  borderRadius: 8,
+                  cursor: "pointer",
+                  border: "none",
+                  background: isActive
+                    ? "rgba(39, 224, 195, 0.1)"
+                    : "transparent",
+                  color: isActive ? "#27E0C3" : "#9AA8B8",
+                  fontSize: 13,
+                  fontWeight: isActive ? 500 : 400,
+                  textAlign: "left",
+                  width: "100%",
+                  boxShadow: isActive ? "inset 2px 0 0 #27E0C3" : "none",
+                  transition: "all 0.15s",
+                }}
+              >
+                <Icon size={15} />
+                {item.label}
+              </button>
+            );
+          })}
+
+          <div
+            style={{
+              marginTop: "auto",
+              padding: "12px",
+              borderTop: "1px solid #243041",
             }}
           >
             <div
               style={{
                 fontSize: 10,
-                fontWeight: 600,
                 color: "#6F7F92",
-                letterSpacing: "0.12em",
-                textTransform: "uppercase",
-                padding: "4px 12px 8px",
-                marginBottom: 4,
+                letterSpacing: "0.08em",
               }}
             >
-              MODULES
+              LAST SYNC
             </div>
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive =
-                activePage === item.id ||
-                (item.id === "sleep" && activePage === "biometrics");
-              return (
-                <button
-                  type="button"
-                  key={item.id}
-                  onClick={() =>
-                    onNavigate(item.id === "sleep" ? "biometrics" : item.id)
-                  }
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    padding: "9px 12px",
-                    borderRadius: 8,
-                    cursor: "pointer",
-                    border: "none",
-                    background: isActive
-                      ? "rgba(39, 224, 195, 0.1)"
-                      : "transparent",
-                    color: isActive ? "#27E0C3" : "#9AA8B8",
-                    fontSize: 13,
-                    fontWeight: isActive ? 500 : 400,
-                    textAlign: "left",
-                    width: "100%",
-                    boxShadow: isActive ? "inset 2px 0 0 #27E0C3" : "none",
-                    transition: "all 0.15s",
-                  }}
-                >
-                  <Icon size={15} />
-                  {item.label}
-                </button>
-              );
-            })}
-
-            <div
-              style={{
-                marginTop: "auto",
-                padding: "12px",
-                borderTop: "1px solid #243041",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 10,
-                  color: "#6F7F92",
-                  letterSpacing: "0.08em",
-                }}
-              >
-                LAST SYNC
-              </div>
-              <div style={{ fontSize: 12, color: "#27E0C3", marginTop: 2 }}>
-                Garmin {"\u2022"} 2 min ago
-              </div>
-              <div style={{ fontSize: 12, color: "#9AA8B8", marginTop: 1 }}>
-                Apple Health {"\u2022"} 5 min ago
-              </div>
+            <div style={{ fontSize: 12, color: "#27E0C3", marginTop: 2 }}>
+              Garmin <span style={{ color: "#4A5A6A" }}>|</span> 2 min ago
             </div>
-          </aside>
-        )}
+            <div style={{ fontSize: 12, color: "#9AA8B8", marginTop: 1 }}>
+              Apple Health <span style={{ color: "#4A5A6A" }}>|</span> 5 min ago
+            </div>
+          </div>
+        </aside>
 
         {/* Main content */}
-        <main style={{ flex: 1, overflow: "auto", padding: 24 }}>
+        <main className="flex-1 overflow-auto p-4 md:p-6">
           {children}
           {/* Footer */}
           <div
-            style={{
-              marginTop: 32,
-              paddingTop: 16,
-              borderTop: "1px solid #243041",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
+            className="mt-8 pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2"
+            style={{ borderTop: "1px solid #243041" }}
           >
             <span style={{ fontSize: 11, color: "#6F7F92" }}>
-              CORE-OS &copy; 2026 &nbsp;&middot;&nbsp;{" "}
+              CORE-OS &copy; {new Date().getFullYear()} &nbsp;&middot;&nbsp;{" "}
               <span style={{ color: "#9AA8B8", cursor: "pointer" }}>
                 Privacy
               </span>

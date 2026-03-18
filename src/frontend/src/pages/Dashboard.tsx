@@ -16,20 +16,18 @@ import {
 const Card: React.FC<{
   title: string;
   children: React.ReactNode;
-  style?: React.CSSProperties;
-}> = ({ title, children, style }) => (
+  className?: string;
+}> = ({ title, children, className = "" }) => (
   <div
+    className={`rounded-xl overflow-hidden ${className}`}
     style={{
       background: "linear-gradient(135deg, #141B24 0%, #1A2330 100%)",
       border: "1px solid #243041",
       borderTop: "1px solid rgba(39,224,195,0.25)",
-      borderRadius: 12,
-      overflow: "hidden",
       boxShadow: "0 4px 24px rgba(0,0,0,0.4)",
-      ...style,
     }}
   >
-    <div style={{ padding: "14px 20px", borderBottom: "1px solid #1e2a38" }}>
+    <div className="px-5 py-3.5" style={{ borderBottom: "1px solid #1e2a38" }}>
       <span
         style={{
           fontSize: 11,
@@ -42,7 +40,7 @@ const Card: React.FC<{
         {title}
       </span>
     </div>
-    <div style={{ padding: "16px 20px" }}>{children}</div>
+    <div className="px-5 py-4">{children}</div>
   </div>
 );
 
@@ -71,7 +69,7 @@ export const Dashboard: React.FC = () => {
   const hrvVals = hrvHistory.map((h) => h.value);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+    <div className="flex flex-col gap-5">
       {/* Page title */}
       <div>
         <div
@@ -85,23 +83,17 @@ export const Dashboard: React.FC = () => {
         >
           COMMAND CENTER
         </div>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: "#E8EEF6" }}>
+        <h1 className="text-2xl font-bold" style={{ color: "#E8EEF6" }}>
           Biological Dashboard
         </h1>
-        <div style={{ fontSize: 13, color: "#9AA8B8", marginTop: 2 }}>
+        <div className="text-sm mt-0.5" style={{ color: "#9AA8B8" }}>
           Last updated: {latestWearable.date} &nbsp;&middot;&nbsp; All systems
           nominal
         </div>
       </div>
 
       {/* KPI Row */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
-          gap: 16,
-        }}
-      >
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
           label="Heart Rate Variability"
           value={latestWearable.hrv}
@@ -136,37 +128,14 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* Main grid */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1.2fr 1fr 1fr",
-          gap: 16,
-          alignItems: "start",
-        }}
-      >
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
         {/* Left column */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div className="flex flex-col gap-4">
           <Card title="Systemic Inflammation Score">
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 12,
-              }}
-            >
+            <div className="flex flex-col items-center gap-3">
               <InflammationGauge score={inflammationScore} size={220} />
-              <div
-                style={{ width: "100%", height: 1, background: "#243041" }}
-              />
-              <div
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
+              <div className="w-full h-px" style={{ background: "#243041" }} />
+              <div className="w-full flex justify-between items-center">
                 <span
                   style={{
                     fontSize: 11,
@@ -200,20 +169,14 @@ export const Dashboard: React.FC = () => {
           </Card>
 
           <Card title="Inflammation Drivers (AI-Derived)">
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div className="flex flex-col gap-3">
               {inflammationDrivers.map((d) => (
                 <div key={d.name}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      marginBottom: 4,
-                    }}
-                  >
+                  <div className="flex justify-between mb-1">
                     <span style={{ fontSize: 12, color: "#9AA8B8" }}>
                       {d.name}
                     </span>
-                    <div style={{ display: "flex", gap: 8 }}>
+                    <div className="flex gap-2">
                       <span
                         style={{
                           fontSize: 12,
@@ -236,12 +199,8 @@ export const Dashboard: React.FC = () => {
                     </div>
                   </div>
                   <div
-                    style={{
-                      height: 4,
-                      background: "#243041",
-                      borderRadius: 2,
-                      overflow: "hidden",
-                    }}
+                    className="h-1 rounded overflow-hidden"
+                    style={{ background: "#243041" }}
                   >
                     <div
                       style={{
@@ -259,26 +218,22 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Center: Biomarkers */}
-        <Card title="Lab Biomarker Status" style={{ alignSelf: "start" }}>
+        <Card title="Lab Biomarker Status" className="col-span-1">
           <div>
             {biomarkers.slice(0, 5).map((m) => (
               <BiomarkerRow key={m.id} marker={m} />
             ))}
           </div>
           <div
-            style={{
-              marginTop: 12,
-              fontSize: 11,
-              color: "#6F7F92",
-              textAlign: "center",
-            }}
+            className="mt-3 text-center"
+            style={{ fontSize: 11, color: "#6F7F92" }}
           >
             Last panel: {biomarkers[0].date}
           </div>
         </Card>
 
         {/* Right: AI Advisor */}
-        <Card title="Core AI Advisor" style={{ alignSelf: "start" }}>
+        <Card title="Core AI Advisor" className="col-span-1">
           <AdvisorFeed recs={advisorRecs.slice(0, 4)} />
         </Card>
       </div>
