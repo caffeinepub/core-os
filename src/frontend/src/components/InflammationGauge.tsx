@@ -7,31 +7,35 @@ interface Props {
   delta?: number; // trend delta, e.g. -0.4
 }
 
+const OPTIMAL_COLOR = "#22C55E";
+const MODERATE_COLOR = "#F5A623";
+const ALERT_COLOR = "#FF4D57";
+
 const getCategory = (score: number) => {
-  if (score < 3) return { label: "OPTIMAL", color: "#2FE6B7" };
-  if (score < 6) return { label: "MODERATE", color: "#F5A623" };
-  return { label: "ALERT", color: "#FF4D57" };
+  if (score < 3) return { label: "OPTIMAL", color: OPTIMAL_COLOR };
+  if (score < 6) return { label: "MODERATE", color: MODERATE_COLOR };
+  return { label: "ALERT", color: ALERT_COLOR };
 };
 
 const ZONE_INFO = [
   {
     label: "OPTIMAL",
     range: "0–3",
-    color: "#2FE6B7",
+    color: OPTIMAL_COLOR,
     description:
       "Anti-aging zone. Chronic inflammation suppressed. Associated with longevity and disease prevention.",
   },
   {
     label: "MODERATE",
     range: "3–6",
-    color: "#F5A623",
+    color: MODERATE_COLOR,
     description:
       "Elevated. Monitor closely. Intervention via diet, sleep, and stress reduction recommended.",
   },
   {
     label: "ALERT",
     range: "6–10",
-    color: "#FF4D57",
+    color: ALERT_COLOR,
     description:
       "High systemic inflammation. Active health risk. Consult clinician and review protocol stack.",
   },
@@ -64,18 +68,17 @@ export const InflammationGauge: React.FC<Props> = ({
   };
 
   const scoreAngle = 180 - (Math.max(0, Math.min(10, score)) / 10) * 180;
+  // Zone boundary angles (score 3 → 126°, score 6 → 72°)
+  const z1 = 180 - 3 * 18; // 126°
+  const z2 = 180 - 6 * 18; // 72°
 
   const cat = getCategory(score);
-
-  const z1 = 180 - 3 * 18;
-  const z2 = 180 - 6 * 18;
 
   const labelRadius = r + sw * 1.15;
   const optimalPt = polarToXY(153, labelRadius);
   const moderatePt = polarToXY(99, labelRadius);
   const alertPt = polarToXY(36, labelRadius);
 
-  // Fixed: needle tip pulled back so it doesn't touch the arc
   const tip = polarToXY(scoreAngle, r - sw * 0.72);
   const b1 = polarToXY(scoreAngle + 90, size * 0.032);
   const b2 = polarToXY(scoreAngle - 90, size * 0.032);
@@ -87,14 +90,56 @@ export const InflammationGauge: React.FC<Props> = ({
   const fontSize = size * 0.046;
 
   const trendSign = delta >= 0 ? "+" : "";
-  const trendColor = delta <= 0 ? "#2FE6B7" : "#FF4D57";
+  const trendColor = delta <= 0 ? OPTIMAL_COLOR : ALERT_COLOR;
+
+  // Build per-zone fill segments so each zone always shows its own color
+  const fillSegments: { startDeg: number; endDeg: number; color: string }[] =
+    [];
+  if (score > 0) {
+    // endOptimal unused
+    // Optimal segment (score 0–3): from 180° down to z1
+    // Arc goes RIGHT (decreasing degrees), so start=180, end=z1 covers optimal
+    if (scoreAngle < 180) {
+      // optEnd unused
+      // optimal zone fill: 180 → z1 if score >= 3, else 180 → scoreAngle
+      if (score >= 3) {
+        fillSegments.push({ startDeg: 180, endDeg: z1, color: OPTIMAL_COLOR });
+      } else {
+        fillSegments.push({
+          startDeg: 180,
+          endDeg: scoreAngle,
+          color: OPTIMAL_COLOR,
+        });
+      }
+    }
+    // Moderate segment (score 3–6)
+    if (score > 3) {
+      // modEnd unused
+      if (score >= 6) {
+        fillSegments.push({ startDeg: z1, endDeg: z2, color: MODERATE_COLOR });
+      } else {
+        fillSegments.push({
+          startDeg: z1,
+          endDeg: scoreAngle,
+          color: MODERATE_COLOR,
+        });
+      }
+    }
+    // Alert segment (score 6–10)
+    if (score > 6) {
+      fillSegments.push({
+        startDeg: z2,
+        endDeg: scoreAngle,
+        color: ALERT_COLOR,
+      });
+    }
+  }
 
   return (
     <div
       className="flex flex-col items-center gap-3 w-full"
       style={{ position: "relative" }}
     >
-      {/* Gauge SVG — hover/click toggles tooltip */}
       <button
         type="button"
         style={{
@@ -131,7 +176,7 @@ export const InflammationGauge: React.FC<Props> = ({
           <path
             d={arc(180, z1, r)}
             fill="none"
-            stroke="#0f2e27"
+            stroke="#0f2e18"
             strokeWidth={sw}
             strokeLinecap="butt"
           />
@@ -167,11 +212,25 @@ export const InflammationGauge: React.FC<Props> = ({
             );
           })}
 
+          {/* Per-zone fill arcs — each zone keeps its own color */}
+          {fillSegments.map((seg, i) => (
+            <path
+              key={seg.color}
+              d={arc(seg.startDeg, seg.endDeg, r)}
+              fill="none"
+              stroke={seg.color}
+              strokeWidth={sw * 0.55}
+              strokeLinecap={i === fillSegments.length - 1 ? "round" : "butt"}
+              filter="url(#infGlow)"
+              opacity={0.92}
+            />
+          ))}
+
           {/* Zone labels */}
           <text
             x={optimalPt.x}
             y={optimalPt.y}
-            fill="#2FE6B7"
+            fill={OPTIMAL_COLOR}
             fontSize={fontSize}
             fontWeight={600}
             textAnchor="middle"
@@ -184,7 +243,7 @@ export const InflammationGauge: React.FC<Props> = ({
           <text
             x={moderatePt.x}
             y={moderatePt.y}
-            fill="#F5A623"
+            fill={MODERATE_COLOR}
             fontSize={fontSize}
             fontWeight={600}
             textAnchor="middle"
@@ -197,7 +256,7 @@ export const InflammationGauge: React.FC<Props> = ({
           <text
             x={alertPt.x}
             y={alertPt.y}
-            fill="#FF4D57"
+            fill={ALERT_COLOR}
             fontSize={fontSize}
             fontWeight={600}
             textAnchor="middle"
@@ -207,17 +266,6 @@ export const InflammationGauge: React.FC<Props> = ({
           >
             ALERT
           </text>
-
-          {/* Active fill arc */}
-          <path
-            d={arc(180, scoreAngle, r)}
-            fill="none"
-            stroke={cat.color}
-            strokeWidth={sw * 0.55}
-            strokeLinecap="round"
-            filter="url(#infGlow)"
-            opacity={0.92}
-          />
 
           {/* Needle */}
           <polygon
@@ -262,18 +310,6 @@ export const InflammationGauge: React.FC<Props> = ({
             {cat.label}
           </text>
         </svg>
-
-        {/* Hover indicator ring */}
-        {tooltipVisible && (
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              borderRadius: "50%",
-              pointerEvents: "none",
-            }}
-          />
-        )}
       </button>
 
       {/* Rich tooltip panel */}
@@ -294,7 +330,6 @@ export const InflammationGauge: React.FC<Props> = ({
             pointerEvents: "none",
           }}
         >
-          {/* Title */}
           <div
             style={{
               fontSize: 11,
@@ -307,8 +342,6 @@ export const InflammationGauge: React.FC<Props> = ({
           >
             Systemic Inflammation Score
           </div>
-
-          {/* What it measures */}
           <p
             style={{
               fontSize: 12,
@@ -329,8 +362,6 @@ export const InflammationGauge: React.FC<Props> = ({
             </strong>
             .
           </p>
-
-          {/* Current reading */}
           <div
             className="flex items-center justify-between"
             style={{
@@ -397,8 +428,6 @@ export const InflammationGauge: React.FC<Props> = ({
               </div>
             </div>
           </div>
-
-          {/* Zone breakdown */}
           <div
             style={{
               fontSize: 10,
@@ -492,9 +521,9 @@ export const InflammationGauge: React.FC<Props> = ({
       {/* Legend row */}
       <div className="flex items-center justify-center gap-4 flex-wrap">
         {[
-          { label: "OPTIMAL", range: "0–3", color: "#2FE6B7" },
-          { label: "MODERATE", range: "3–6", color: "#F5A623" },
-          { label: "ALERT", range: "6–10", color: "#FF4D57" },
+          { label: "OPTIMAL", range: "0–3", color: OPTIMAL_COLOR },
+          { label: "MODERATE", range: "3–6", color: MODERATE_COLOR },
+          { label: "ALERT", range: "6–10", color: ALERT_COLOR },
         ].map((z) => (
           <div key={z.label} className="flex items-center gap-1.5">
             <span style={{ color: z.color, fontSize: 10 }}>●</span>
@@ -513,7 +542,6 @@ export const InflammationGauge: React.FC<Props> = ({
         ))}
       </div>
 
-      {/* Hover hint */}
       <div
         style={{
           fontSize: 10,
