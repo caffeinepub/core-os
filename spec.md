@@ -1,32 +1,32 @@
 # CORE-OS
 
 ## Current State
-Biometrics page has a small static pie chart for sleep architecture showing one night's data (Deep/REM/Light/Awake percentages). No multi-night navigation, no hypnogram, no trend view. Layout nav has a 'Sleep Analysis' item that currently routes to biometrics.
+- InflammationGauge renders with needle tip at `r - sw * 0.1` which lands on/overlaps the arc track visually. No hover tooltip exists explaining what the score is, how it's calculated, or what the zones mean.
+- Navigation is 8 flat linear tab buttons with zero grouping, no icons in the tab bar, and no visual hierarchy.
+- Badges on Achievements page show no progress toward locked badges, no hover detail, minimal interactivity. Gamification feels passive.
 
 ## Requested Changes (Diff)
 
 ### Add
-- `SleepNight` data type with date, sleep/wake times, hypnogram segments (stage + start/end minutes), sleep score, HRV, and per-stage percentages
-- 14 nights of realistic mock sleep data in mockData.ts
-- New `SleepAnalysis` page (`src/frontend/src/pages/SleepAnalysis.tsx`) with:
-  - **Night selector**: prev/next arrows + date display, swipeable/clickable list of stored nights
-  - **Gantt hypnogram**: horizontal bar chart showing actual sleep stages (Awake/REM/Light/Deep) across clock hours of the night (x-axis = time, y-axis = stage, segments colored by stage)
-  - **Per-night stats strip**: Sleep Score, Total Duration, Deep %, REM %, HRV, Efficiency
-  - **Trends section** (hidden by default, expandable via 'Show Trends' button):
-    - Multi-line chart over last 14 nights with toggleable metrics: Deep %, REM %, Light %, Total Duration, Sleep Score, HRV
-    - Each metric has a toggle chip to show/hide its line
+- Rich hover/focus tooltip on InflammationGauge: explains what Systemic Inflammation Score is (composite of hs-CRP, IL-6, HRV variability, sleep quality), how each zone maps clinically (Optimal 0-3: anti-aging zone; Moderate 3-6: monitor and intervene; Alert 6-10: active risk, action required), shows current score, category, and 30-day delta.
+- Navigation grouped by category with visual dividers: HEALTH (Dashboard, Biometrics, Sleep, Labs), INTELLIGENCE (AI Advisor, Protocols), COMMUNITY (Achievements, Squads). Each tab in header gets an icon. Group labels visible on desktop, collapsed on mobile.
+- Locked badge progress bars showing partial completion (e.g., HRV Champion: 14/30 days). Each badge card expands or shows a tooltip on hover with: full description, what actions earn it, and how close the user is.
+- XP source breakdown section on Achievements page: table/list showing where XP was earned (Protocol streaks, Lab uploads, Biomarker improvements, Sleep targets hit).
 
 ### Modify
-- `App.tsx`: add `sleep` -> `SleepAnalysis` page mapping
-- `Layout.tsx`: update sidebar Sleep Analysis item to navigate to `sleep` page (not biometrics)
-- Header nav: add 'Sleep' tab link
+- InflammationGauge needle tip: shorten to `r - sw * 0.72` so it stops clearly inside the arc track inner edge with visible clearance.
+- Badge cards: always show description text (not just on hover). Show progress indicator for locked badges. Unlocked badges show earned date. Add subtle glow/pulse animation to newly unlocked badges.
+- Header nav tabs: add icon to each tab, group with a thin visual separator between groups. On narrower screens show icons-only with tooltip.
+- Sidebar nav: add group section labels (HEALTH, INTELLIGENCE, COMMUNITY) above grouped nav items.
 
 ### Remove
-- Static sleep pie chart from Biometrics page (replace with a 'View Sleep Analysis' link card)
+- "NEW" badge tag on Achievements/Squads sidebar items (replace with meaningful indicators like streak count or challenge count).
 
 ## Implementation Plan
-1. Extend mockData.ts with SleepNight interface and 14-night dataset with realistic hypnogram segments
-2. Build SleepAnalysis.tsx: night navigator, Gantt hypnogram using recharts, stats strip, collapsible trend section
-3. Update App.tsx to include sleep page
-4. Update Layout.tsx sidebar to route sleep item to 'sleep' page and add Sleep tab to header nav
-5. Replace Biometrics sleep pie with a compact link card
+1. Fix InflammationGauge needle clearance (shorten tip radius)
+2. Add tooltip component on InflammationGauge with score explanation panel
+3. Redesign Layout header tabs: grouped with icons and visual separators
+4. Update sidebar: add section group labels
+5. Update Achievements badges: add progress on locked, hover details, descriptions always visible
+6. Add XP source breakdown to Achievements page
+7. Validate and build

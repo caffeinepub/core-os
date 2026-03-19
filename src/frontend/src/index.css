@@ -1,23 +1,74 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
 
-:root {
+/* ─── COMMAND THEME (default dark) ───────────────────────────────────────── */
+:root,
+[data-theme="command"] {
   --bg-primary: #0b0f14;
   --bg-secondary: #101826;
   --surface: #141b24;
   --surface-2: #1a2330;
+  --header-bg: #0d1218;
   --border: #243041;
   --border-glow: rgba(39, 224, 195, 0.2);
   --text-primary: #e8eef6;
   --text-secondary: #9aa8b8;
   --text-muted: #6f7f92;
-  --teal: #27e0c3;
-  --teal-dim: rgba(39, 224, 195, 0.15);
-  --teal-glow: rgba(39, 224, 195, 0.3);
+  --accent: #27e0c3;
+  --accent-dim: rgba(39, 224, 195, 0.15);
+  --accent-glow: rgba(39, 224, 195, 0.3);
+  --accent-hover: #1fc9ad;
   --alert-red: #ff4d57;
   --alert-red-dim: rgba(255, 77, 87, 0.15);
   --success: #2fe6b7;
   --warning: #f5a623;
   --warning-dim: rgba(245, 166, 35, 0.15);
+  --card-gradient: linear-gradient(135deg, #141b24 0%, #1a2330 100%);
+  --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --card-border-top: rgba(39, 224, 195, 0.25);
+  --divider: #1e2a38;
+  --nav-active: #27e0c3;
+  --sidebar-active-bg: rgba(39, 224, 195, 0.1);
+  --sidebar-active-shadow: inset 2px 0 0 #27e0c3;
+  /* Old aliases */
+  --teal: #27e0c3;
+  --teal-dim: rgba(39, 224, 195, 0.15);
+  --teal-glow: rgba(39, 224, 195, 0.3);
+  color-scheme: dark;
+}
+
+/* ─── CLINIC THEME (light / Digital Lab) ─────────────────────────────────── */
+[data-theme="clinic"] {
+  --bg-primary: #f8fafb;
+  --bg-secondary: #eef2f7;
+  --surface: #ffffff;
+  --surface-2: #f1f5f9;
+  --header-bg: #ffffff;
+  --border: #d1dce8;
+  --border-glow: rgba(0, 148, 184, 0.2);
+  --text-primary: #0a0f1e;
+  --text-secondary: #3d4f63;
+  --text-muted: #7a8fa6;
+  --accent: #006fa8;
+  --accent-dim: rgba(0, 111, 168, 0.08);
+  --accent-glow: rgba(0, 111, 168, 0.18);
+  --accent-hover: #005a8a;
+  --alert-red: #dc2626;
+  --alert-red-dim: rgba(220, 38, 38, 0.08);
+  --success: #047857;
+  --warning: #b45309;
+  --warning-dim: rgba(180, 83, 9, 0.08);
+  --card-gradient: linear-gradient(135deg, #ffffff 0%, #f8fafb 100%);
+  --card-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+  --card-border-top: rgba(0, 111, 168, 0.25);
+  --divider: #e2e8f0;
+  --nav-active: #006fa8;
+  --sidebar-active-bg: rgba(0, 111, 168, 0.07);
+  --sidebar-active-shadow: inset 2px 0 0 #006fa8;
+  /* Old aliases */
+  --teal: #006fa8;
+  --teal-dim: rgba(0, 111, 168, 0.08);
+  --teal-glow: rgba(0, 111, 168, 0.2);
+  color-scheme: light;
 }
 
 * {
@@ -35,6 +86,7 @@ body,
   font-family: "Inter", sans-serif;
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
+  transition: background 0.25s, color 0.25s;
 }
 
 /* Scrollbar */
@@ -53,12 +105,6 @@ body,
   background: var(--text-muted);
 }
 
-/* Override shadcn defaults */
-.dark,
-[data-theme="dark"] {
-  color-scheme: dark;
-}
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -68,4 +114,32 @@ body,
     --background: 220 15% 7%;
     --foreground: 210 30% 92%;
   }
+}
+
+/* ─── XP Bar animation ───────────────────────────────────────────────────── */
+@keyframes xp-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.xp-bar-fill {
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Clinic theme card overrides ───────────────────────────────────────── */
+[data-theme="clinic"] .card-base {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 1px solid var(--card-border-top);
+  box-shadow: var(--card-shadow);
+}
+
+/* Badge glow effect */
+.badge-glow {
+  box-shadow: 0 0 12px var(--accent-glow);
 }
